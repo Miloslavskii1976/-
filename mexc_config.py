@@ -1,0 +1,4 @@
+# Локальный конфиг MEXC API
+MEXC_API_KEY = "mx0vglbdL1duZeZqX9"
+MEXC_API_SECRET = "e2cea42819144b44b3c4c534b179990f"
+MEXC_ALLOWED_IP = ''
