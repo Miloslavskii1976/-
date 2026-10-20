@@ -17,13 +17,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android components (aidl)
+      - name: Install Android SDK components (aidl)
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125"
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          SDKMANAGER=$(find $ANDROID_HOME/cmdline-tools -name sdkmanager -type f | head -n 1)
+          echo "Using sdkmanager: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses || true
+          $SDKMANAGER "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125"
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
 
       - name: Install buildozer
@@ -33,7 +33,7 @@ jobs:
 
       - name: Build APK
         env:
-          ANDROIDSDK: ${{ env.ANDROID_HOME }}
+          ANDROIDSDK: /usr/local/lib/android/sdk
         run: |
           buildozer -v android debug
 
