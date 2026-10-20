@@ -17,17 +17,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Android SDK components (aidl)
+      - name: Install Android SDK components (aidl + api 31)
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
           SDKMANAGER=$(find $ANDROID_HOME/cmdline-tools -name sdkmanager -type f | head -n 1)
           yes | $SDKMANAGER --licenses || true
-          $SDKMANAGER "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125"
+          $SDKMANAGER "platform-tools" "platforms;android-31" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125"
           echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
+          ls $ANDROID_HOME/platforms | grep android-31
 
-      - name: Prepare buildozer Android SDK (sdkmanager + aidl)
+      - name: Prepare buildozer Android SDK (sdkmanager + aidl + api 31)
         run: |
           SYS=/usr/local/lib/android/sdk
           BSD=/home/runner/.buildozer/android/platform/android-sdk
@@ -36,8 +37,9 @@ jobs:
           ln -sfn $SYS/cmdline-tools/latest/bin/sdkmanager $BSD/tools/bin/sdkmanager
           ln -sfn $SYS/platform-tools $BSD/platform-tools
           ln -sfn $SYS/build-tools/34.0.0 $BSD/build-tools/34.0.0
+          ln -sfn $SYS/platforms/android-31 $BSD/platforms/android-31
           ln -sfn $SYS/platforms/android-34 $BSD/platforms/android-34
-          ls -la $BSD/tools/bin/
+          ls -la $BSD/platforms/
           $BSD/tools/bin/sdkmanager --version
 
       - name: Install latest buildozer from GitHub
