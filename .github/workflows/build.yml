@@ -57,7 +57,17 @@ jobs:
         with:
           name: build-log
           path: build_log.txt
+      - name: Save last 150 log lines
+        if: always()
+        run: |
+          tail -n 150 build_log.txt > error_tail.txt || true
 
+      - name: Upload error tail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-tail
+          path: error_tail.txt
       - name: Upload APK
         if: always()
         uses: actions/upload-artifact@v4
