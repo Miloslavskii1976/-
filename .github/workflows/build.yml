@@ -30,6 +30,13 @@ jobs:
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
 
+      - name: Pre-create buildozer SDK build-tools (aidl)
+        run: |
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools
+          ln -sfn /usr/local/lib/android/sdk/build-tools/34.0.0 /home/runner/.buildozer/android/platform/android-sdk/build-tools/37.0.0
+          ln -sfn /usr/local/lib/android/sdk/build-tools/34.0.0 /home/runner/.buildozer/android/platform/android-sdk/build-tools/34.0.0
+          ls -la /home/runner/.buildozer/android/platform/android-sdk/build-tools/
+
       - name: Install latest buildozer from GitHub
         run: |
           pip install --upgrade pip virtualenv
