@@ -2,6 +2,10 @@ name: Build APK
 
 on: [push]
 
+env:
+  ANDROIDSDK: /usr/local/lib/android/sdk
+  ANDROIDNDK: /usr/local/lib/android/sdk/ndk-bundle
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,17 +18,22 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Install Android build tools (aidl)
+
+      - name: Install Android SDK components (aidl)
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" "platforms;android-34"
+          yes | $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+          ls -la $ANDROIDSDK/build-tools/30.0.3 | grep aidl
+
       - name: Install buildozer
         run: |
           pip install --upgrade pip virtualenv
           pip install buildozer cython==0.29.36
+
       - name: Build APK
         run: |
           buildozer -v android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
