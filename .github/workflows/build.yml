@@ -2,9 +2,6 @@ name: Build APK
 
 on: [push]
 
-env:
-  ANDROIDSDK: /usr/local/lib/android/sdk
-
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -30,12 +27,18 @@ jobs:
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
 
-      - name: Pre-create buildozer SDK build-tools (aidl)
+      - name: Prepare buildozer Android SDK (sdkmanager + aidl)
         run: |
-          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/build-tools
-          ln -sfn /usr/local/lib/android/sdk/build-tools/34.0.0 /home/runner/.buildozer/android/platform/android-sdk/build-tools/37.0.0
-          ln -sfn /usr/local/lib/android/sdk/build-tools/34.0.0 /home/runner/.buildozer/android/platform/android-sdk/build-tools/34.0.0
-          ls -la /home/runner/.buildozer/android/platform/android-sdk/build-tools/
+          SYS=/usr/local/lib/android/sdk
+          BSD=/home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p $BSD/tools/bin $BSD/cmdline-tools $BSD/build-tools $BSD/platform-tools $BSD/platforms
+          ln -sfn $SYS/cmdline-tools/latest $BSD/cmdline-tools/latest
+          ln -sfn $SYS/cmdline-tools/latest/bin/sdkmanager $BSD/tools/bin/sdkmanager
+          ln -sfn $SYS/platform-tools $BSD/platform-tools
+          ln -sfn $SYS/build-tools/34.0.0 $BSD/build-tools/34.0.0
+          ln -sfn $SYS/platforms/android-34 $BSD/platforms/android-34
+          ls -la $BSD/tools/bin/
+          $BSD/tools/bin/sdkmanager --version
 
       - name: Install latest buildozer from GitHub
         run: |
@@ -45,6 +48,8 @@ jobs:
           buildozer version
 
       - name: Build APK
+        env:
+          ANDROIDSDK: /home/runner/.buildozer/android/platform/android-sdk
         run: |
           which aidl
           buildozer -v android debug
