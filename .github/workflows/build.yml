@@ -2,6 +2,9 @@ name: Build APK
 
 on: [push]
 
+env:
+  ANDROIDSDK: /usr/local/lib/android/sdk
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -27,20 +30,14 @@ jobs:
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
 
-      - name: Link buildozer SDK to system SDK
-        run: |
-          mkdir -p /home/runner/.buildozer/android/platform
-          ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
-          ls -la /home/runner/.buildozer/android/platform/
-
-      - name: Install buildozer
+      - name: Install latest buildozer from GitHub
         run: |
           pip install --upgrade pip virtualenv
-          pip install buildozer cython==0.29.36
+          pip install -U git+https://github.com/kivy/buildozer.git
+          pip install cython==0.29.36
+          buildozer version
 
       - name: Build APK
-        env:
-          ANDROIDSDK: /usr/local/lib/android/sdk
         run: |
           which aidl
           buildozer -v android debug
