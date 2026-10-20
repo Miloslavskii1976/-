@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -12,14 +12,33 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Build APK with buildozer-action
-        id: buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+      - uses: actions/setup-java@v4
         with:
-          buildozer_version: master
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android components (aidl)
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125"
+          ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
+
+      - name: Install buildozer
+        run: |
+          pip install --upgrade pip virtualenv
+          pip install buildozer cython==0.29.36
+
+      - name: Build APK
+        env:
+          ANDROIDSDK: ${{ env.ANDROID_HOME }}
+        run: |
+          buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
