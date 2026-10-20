@@ -27,6 +27,12 @@ jobs:
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           ls $ANDROID_HOME/build-tools/34.0.0 | grep aidl
 
+      - name: Link buildozer SDK to system SDK
+        run: |
+          mkdir -p /home/runner/.buildozer/android/platform
+          ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
+          ls -la /home/runner/.buildozer/android/platform/
+
       - name: Install buildozer
         run: |
           pip install --upgrade pip virtualenv
